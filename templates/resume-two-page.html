@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{FULL_NAME}} — {{TARGET_ROLE}}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: #e8ecf1;
+    display: flex; justify-content: center;
+    padding: 40px 20px;
+    color: #1e293b;
+    line-height: 1.7;
+  }
+  .page {
+    width: 794px; min-height: 1123px;
+    background: #fff;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    display: flex;
+  }
+  /* ── Left sidebar ── */
+  .sidebar {
+    width: 220px;
+    background: linear-gradient(180deg, #0f172a 0%, #1e3a5f 100%);
+    color: #e2e8f0;
+    padding: 36px 20px 28px;
+    display: flex; flex-direction: column; gap: 22px;
+    flex-shrink: 0; font-size: 13px;
+  }
+  .sidebar .photo-box {
+    width: 100px; height: 124px; border-radius: 6px; overflow: hidden;
+    border: 2px solid rgba(255,255,255,.2);
+    align-self: center;
+  }
+  .sidebar .photo-box img { width: 100%; height: 100%; object-fit: cover; }
+  .sidebar .name {
+    font-size: 26px; font-weight: 700; color: #fff;
+    letter-spacing: 2px; line-height: 1.2; text-align: center;
+  }
+  .sidebar .title-tag {
+    font-size: 12px; color: #94a3b8; letter-spacing: 1px;
+    text-align: center; margin-top: 2px;
+  }
+  .sidebar .sec-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: #64748b; border-bottom: 1px solid #334155;
+    padding-bottom: 6px; margin-bottom: 8px;
+  }
+  .sidebar .info-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    margin-bottom: 6px; font-size: 12.5px; line-height: 1.5;
+  }
+  .sidebar .info-icon { flex-shrink: 0; width: 16px; color: #60a5fa; font-weight: 700; }
+  .sidebar .skill-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .sidebar .skill-tag {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 3px; padding: 3px 7px; font-size: 11px;
+  }
+  .sidebar .highlight-num {
+    font-size: 24px; font-weight: 700; color: #60a5fa; line-height: 1;
+  }
+  .sidebar .highlight-label { font-size: 10px; color: #94a3b8; }
+
+  /* ── Main ── */
+  .main {
+    flex: 1; padding: 32px 30px 28px 28px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .main .sec-title {
+    font-size: 13px; font-weight: 700; letter-spacing: 3px;
+    color: #0f172a; text-transform: uppercase;
+    border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-bottom: 8px;
+  }
+  .profile-text { font-size: 14px; color: #334155; line-height: 1.8; }
+  .profile-text strong { color: #0f172a; }
+  .achievement-strip { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 2px; }
+  .achip {
+    background: #eff6ff; border-left: 3px solid #2563eb;
+    padding: 8px 12px; font-size: 12.5px; border-radius: 0 4px 4px 0;
+    flex: 1; min-width: 140px;
+  }
+  .achip .big { font-size: 18px; font-weight: 700; color: #1e40af; display: block; line-height:1.2; }
+  .job { margin-bottom: 12px; }
+  .job-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 3px; flex-wrap: wrap;
+  }
+  .job-company { font-size: 15px; font-weight: 700; color: #0f172a; }
+  .job-date { font-size: 12px; color: #64748b; white-space: nowrap; }
+  .job-role { font-size: 13px; color: #2563eb; font-weight: 600; margin-bottom: 3px; }
+  .job-bullets { list-style: none; padding: 0; }
+  .job-bullets li {
+    font-size: 13px; color: #475569; line-height: 1.7;
+    padding-left: 16px; position: relative; margin-bottom: 2px;
+  }
+  .job-bullets li::before {
+    content: "›"; position: absolute; left: 2px; top: -1px;
+    color: #2563eb; font-weight: 700; font-size: 15px;
+  }
+  .job-bullets li .metric { color: #1e40af; font-weight: 600; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  TEMPLATE: 双页简历
+  用法：将 {{PLACEHOLDER}} 替换为候选人实际数据
+  照片：确保 photo_0.png 与 HTML 同目录
+  每段经历：3-4 bullet points，关键数据用 <strong class="metric"> 包裹
+-->
+
+<div class="page">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar">
+    <!-- 照片 -->
+    <div class="photo-box">
+      <img src="photo_0.png" alt="{{FULL_NAME}}">
+    </div>
+
+    <div>
+      <div class="name">{{FULL_NAME}}</div>
+      <div class="title-tag">{{TARGET_ROLE}}</div>
+    </div>
+
+    <!-- 基本信息 -->
+    <div>
+      <div class="sec-title">基本信息</div>
+      <div class="info-row"><span class="info-icon">📍</span>{{LOCATION}}</div>
+      <div class="info-row"><span class="info-icon">📅</span>{{AGE}} · {{YEARS}}年经验</div>
+      <div class="info-row"><span class="info-icon">🎓</span>{{SCHOOL}} · {{DEGREE}}</div>
+      <div class="info-row"><span class="info-icon">📞</span>{{PHONE}}</div>
+      <div class="info-row"><span class="info-icon">✉️</span>{{EMAIL}}</div>
+    </div>
+
+    <!-- 关键数据：选 3 个最强量化指标 -->
+    <div>
+      <div class="sec-title">关键数据</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        {{#each KEY_METRICS}}
+        <div style="text-align:center">
+          <div class="highlight-num">{{VALUE}}<span style="font-size:14px">{{UNIT}}</span></div>
+          <div class="highlight-label">{{LABEL}}</div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- 证书 -->
+    {{#if CERTIFICATIONS}}
+    <div>
+      <div class="sec-title">证书</div>
+      <div class="skill-tags">
+        {{#each CERTIFICATIONS}}
+        <span class="skill-tag">{{this}}</span>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- 语言 -->
+    {{#if LANGUAGES}}
+    <div>
+      <div class="sec-title">语言</div>
+      <div style="font-size:12px">{{LANGUAGES}}</div>
+    </div>
+    {{/if}}
+  </div>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="main">
+
+    <!-- 专业概要 -->
+    <div>
+      <div class="sec-title">专业概要</div>
+      <div class="profile-text">
+        {{PROFILE_SUMMARY}}
+      </div>
+    </div>
+
+    <!-- 数据亮点横条 -->
+    <div class="achievement-strip">
+      {{#each ACHIEVEMENT_CARDS}}
+      <div class="achip"><span class="big">{{VALUE}}{{UNIT}}</span>{{LABEL}}</div>
+      {{/each}}
+    </div>
+
+    <!-- 技术能力矩阵 -->
+    <div>
+      <div class="sec-title">技术能力</div>
+      <div style="display:flex;gap:16px;font-size:13px;flex-wrap:wrap;">
+        {{#each SKILL_CATEGORIES}}
+        <div style="flex:1;min-width:150px">
+          <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">{{CATEGORY}}</div>
+          <div style="color:#475569">{{ITEMS}}</div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- 工作经历 -->
+    <div>
+      <div class="sec-title">工作经历</div>
+
+      {{#each JOBS}}
+      <div class="job">
+        <div class="job-header">
+          <span class="job-company">{{COMPANY}}</span>
+          <span class="job-date">{{DATES}}</span>
+        </div>
+        <div class="job-role">{{ROLE}}</div>
+        <ul class="job-bullets">
+          {{#each BULLETS}}
+          <li>{{{this}}}</li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/each}}
+    </div>
+
+    <!-- 教育背景 -->
+    <div>
+      <div class="sec-title">教育背景</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span><strong>{{SCHOOL}}</strong> — {{MAJOR}} · {{DEGREE}}</span>
+        <span style="color:#64748b">{{EDU_DATES}}</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

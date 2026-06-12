@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>简历补充指导 — {{FULL_NAME}}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f1f5f9; color: #1e293b; line-height: 1.7;
+    display: flex; justify-content: center; padding: 40px 20px;
+  }
+  .page {
+    width: 794px; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,.1);
+    padding: 48px 52px; font-size: 14px;
+  }
+  h1 { font-size: 24px; color: #0f172a; margin-bottom: 6px; letter-spacing: 1px; }
+  .subtitle { font-size: 13px; color: #64748b; margin-bottom: 28px; }
+  h2 {
+    font-size: 16px; color: #2563eb; border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 6px; margin: 28px 0 14px; letter-spacing: 1px;
+  }
+  h3 {
+    font-size: 14px; color: #0f172a; margin: 16px 0 8px;
+    padding-left: 10px; border-left: 3px solid #ef4444;
+  }
+  .item {
+    background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+    padding: 16px 20px; margin-bottom: 16px;
+  }
+  .item.optional { background: #fffbeb; border-color: #fde68a; }
+  .item.optional h3 { border-left-color: #f59e0b; }
+  .item.enhance { background: #f8fafc; border-color: #cbd5e1; }
+  .item.enhance h3 { border-left-color: #3b82f6; }
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    margin-right: 6px;
+  }
+  .tag.must { background: #fee2e2; color: #dc2626; }
+  .tag.verify { background: #fef3c7; color: #d97706; }
+  .tag.suggest { background: #dbeafe; color: #2563eb; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 6px 0 6px 28px; position: relative;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .checklist li::before {
+    content: "☐"; position: absolute; left: 0; top: 6px;
+    font-size: 16px; color: #94a3b8;
+  }
+  .highlight { background: #fef08a; padding: 0 3px; }
+  .summary-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #93c5fd; border-radius: 8px;
+    padding: 16px 20px; margin-bottom: 24px;
+  }
+  .summary-box .big-num { font-size: 32px; font-weight: 700; color: #1e40af; }
+
+  /* Revision table */
+  table.revisions {
+    width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;
+  }
+  table.revisions th {
+    background:#f8fafc; border:1px solid #e2e8f0; padding:8px 12px; text-align:left;
+  }
+  table.revisions td {
+    border:1px solid #e2e8f0; padding:8px 12px; vertical-align:top;
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; width: 100%; }
+    .item { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  TEMPLATE: 简历补充指导文档
+  用法：将 {{PLACEHOLDER}} 和列表项替换为实际审计结果
+  结构：必须确认项 → 建议补充项 → 可选增强项 → 修订说明表 → 行动清单
+-->
+
+<div class="page">
+
+<h1>简历补充指导文档</h1>
+<div class="subtitle">
+  候选人：{{FULL_NAME}} | 目标岗位：{{TARGET_ROLE}}（{{LOCATION}} · {{SALARY_RANGE}}）| 生成日期：{{DATE}}
+</div>
+
+<div class="summary-box">
+  <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+    <div style="text-align:center">
+      <div class="big-num">{{TOTAL_ITEMS}}</div>
+      <div style="font-size:12px;color:#64748b">需要补充/确认的事项</div>
+    </div>
+    <div style="flex:1;font-size:13px;color:#334155">
+      <strong>本文件目的：</strong>标注优化版简历中所有需要你本人补充、确认或修正的信息点。标<span class="highlight">红色</span>的为<strong>必须确认</strong>项（否则面试可能被质疑），标<span class="highlight">黄色</span>的为建议补充项，标<span class="highlight">蓝色</span>的为可选增强项。
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ -->
+<h2>一、必须确认项（⚠️ 面试风险）</h2>
+<!-- 逐条列出必须确认的问题。每条包含 [问题]、[面试风险]、[请补充] 三个子部分 -->
+{{MUST_CONFIRM_ITEMS}}
+
+<!-- ════════════════════════ -->
+<h2>二、建议补充项（📋 提升竞争力）</h2>
+<!-- 逐条列出建议补充的量化数据或细节 -->
+{{SUGGESTED_ITEMS}}
+
+<!-- ════════════════════════ -->
+<h2>三、可选增强项（💡 锦上添花）</h2>
+<!-- 逐条列出可选增强内容 -->
+{{ENHANCE_ITEMS}}
+
+<!-- ════════════════════════ -->
+<h2>四、优化版简历修订说明</h2>
+<p style="margin-top:12px;color:#475569;">以下是对原始简历所做的所有实质性修改及其理由：</p>
+
+<table class="revisions">
+<thead>
+  <tr>
+    <th style="width:30%">原文</th>
+    <th style="width:30%">优化后</th>
+    <th style="width:40%">理由</th>
+  </tr>
+</thead>
+<tbody>
+  {{REVISION_ROWS}}
+</tbody>
+</table>
+
+<!-- ════════════════════════ -->
+<h2>五、下一步行动清单</h2>
+
+<ol style="margin:12px 0 0 20px;line-height:2.2;">
+  {{ACTION_ITEMS}}
+</ol>
+
+<p style="margin-top:24px;padding:16px;background:#f8fafc;border-radius:8px;font-size:13px;color:#64748b;">
+  <strong>说明：</strong>优化版简历中所有数据均来自你提供的原始简历。除上述标注的"表达优化"外，没有新增任何虚假信息。凡无法从原文直接验证的表述已在客观版中删除。
+</p>
+
+</div>
+</body>
+</html>

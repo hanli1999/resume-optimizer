@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{FULL_NAME}} — {{TARGET_ROLE}}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: #e8ecf1; display: flex; justify-content: center;
+    padding: 20px; color: #1e293b; line-height: 1.45;
+  }
+  .page { width: 794px; height: 1123px; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,.12); overflow: hidden; position: relative; }
+  .header {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
+    color: #fff; padding: 16px 28px 14px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .header-left .name { font-size: 24px; font-weight: 700; letter-spacing: 2px; line-height: 1.1; }
+  .header-left .role { font-size: 11px; opacity: .85; letter-spacing: 1.5px; margin-top: 2px; }
+  .header-right { display: flex; flex-wrap: wrap; gap: 14px; font-size: 10px; opacity: .9; }
+  .header-right .hlabel { opacity: .6; font-size: 8px; }
+  .body-grid { display: flex; padding: 16px 22px; gap: 20px; }
+  .col-left { flex: 1.15; display: flex; flex-direction: column; gap: 10px; }
+  .col-right { flex: 0.85; display: flex; flex-direction: column; gap: 10px; }
+  .sec-title {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: #0d9488; border-bottom: 2px solid #ccfbf1; padding-bottom: 3px; margin-bottom: 5px;
+  }
+  .profile-text { font-size: 12px; color: #334155; line-height: 1.55; }
+  .profile-text strong { color: #0f172a; }
+  .achievement-strip { display: flex; gap: 6px; flex-wrap: wrap; }
+  .achip {
+    background: #f0fdfa; border-left: 3px solid #0d9488;
+    padding: 4px 8px; font-size: 10.5px; border-radius: 0 4px 4px 0;
+    flex: 1; min-width: 100px;
+  }
+  .achip .big { font-size: 14px; font-weight: 700; color: #0f766e; display: block; line-height:1.2; }
+  .job { margin-bottom: 6px; }
+  .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1px; flex-wrap: wrap; }
+  .job-company { font-size: 12.5px; font-weight: 700; color: #0f172a; }
+  .job-date { font-size: 10px; color: #64748b; white-space: nowrap; }
+  .job-role { font-size: 11px; color: #0d9488; font-weight: 600; margin-bottom: 2px; }
+  .job-bullets { list-style: none; padding: 0; }
+  .job-bullets li {
+    font-size: 11px; color: #475569; line-height: 1.45;
+    padding-left: 12px; position: relative; margin-bottom: 1px;
+  }
+  .job-bullets li::before { content: "▸"; position: absolute; left: 0; top: 0; color: #0d9488; font-size: 8px; }
+  .job-bullets li .metric { color: #0f766e; font-weight: 600; }
+  .info-card { background: #f0fdfa; border-radius: 5px; padding: 10px 12px; font-size: 11px; line-height: 1.6; }
+  .info-card .ir { display: flex; gap: 6px; }
+  .info-card .ir .ilabel { color: #0d9488; font-weight: 700; min-width: 14px; font-size: 10px; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .skill-tag {
+    background: #f0fdfa; border: 1px solid #99f6e4;
+    border-radius: 3px; padding: 2px 6px; font-size: 10px; color: #0f766e;
+  }
+  .highlight-num { font-size: 18px; font-weight: 700; color: #0d9488; line-height: 1; }
+  .highlight-label { font-size: 8.5px; color: #64748b; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; width: 100%; height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <div class="name">{{FULL_NAME}}</div>
+      <div class="role">{{TARGET_ROLE}}</div>
+    </div>
+    <div class="header-right">
+      <div><div class="hlabel">地点</div><div>{{LOCATION}}</div></div>
+      <div><div class="hlabel">经验</div><div>{{AGE}} · {{YEARS}}年</div></div>
+      <div><div class="hlabel">学历</div><div>{{SCHOOL_SHORT}} · {{DEGREE_SHORT}}</div></div>
+      <div><div class="hlabel">联系</div><div>{{PHONE}} · {{EMAIL}}</div></div>
+    </div>
+  </div>
+
+  <div class="body-grid">
+    <div class="col-left">
+      <div>
+        <div class="sec-title">专业概要</div>
+        <div class="profile-text">{{{PROFILE_SUMMARY}}}</div>
+      </div>
+
+      <div class="achievement-strip">
+        {{#each ACHIEVEMENT_CARDS}}
+        <div class="achip"><span class="big">{{VALUE}}{{UNIT}}</span>{{LABEL}}</div>
+        {{/each}}
+      </div>
+
+      <div>
+        <div class="sec-title">工作经历</div>
+        {{#each JOBS}}
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">{{COMPANY}}</span>
+            <span class="job-date">{{DATES}}</span>
+          </div>
+          <div class="job-role">{{ROLE}}</div>
+          <ul class="job-bullets">
+            {{#each BULLETS}}
+            <li>{{{this}}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+
+      <div>
+        <div class="sec-title">教育背景</div>
+        <div style="font-size:11px;"><strong>{{SCHOOL}}</strong> — {{MAJOR}} · {{DEGREE}} <span style="color:#64748b">{{EDU_DATES}}</span></div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="info-card">
+        <div class="ir"><span class="ilabel">📍</span>{{LOCATION}}</div>
+        <div class="ir"><span class="ilabel">📅</span>{{AGE}} · {{YEARS}}年经验</div>
+        <div class="ir"><span class="ilabel">🎓</span>{{SCHOOL_SHORT}} · {{DEGREE_SHORT}}</div>
+        <div class="ir"><span class="ilabel">📞</span>{{PHONE}}</div>
+        <div class="ir"><span class="ilabel">✉️</span>{{EMAIL}}</div>
+      </div>
+
+      {{#if KEY_METRICS}}
+      <div>
+        <div class="sec-title">关键数据</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          {{#each KEY_METRICS}}
+          <div style="text-align:center">
+            <div class="highlight-num">{{VALUE}}<span style="font-size:11px">{{UNIT}}</span></div>
+            <div class="highlight-label">{{LABEL}}</div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+
+      <div>
+        <div class="sec-title">技术能力</div>
+        {{#each SKILL_CATEGORIES}}
+        <div style="margin-bottom:7px;">
+          <div style="font-size:10.5px;font-weight:700;color:#0f172a;margin-bottom:2px;">{{CATEGORY}}</div>
+          <div style="font-size:10.5px;color:#475569;line-height:1.45;">{{ITEMS}}</div>
+        </div>
+        {{/each}}
+      </div>
+
+      {{#if CERTIFICATIONS}}
+      <div>
+        <div class="sec-title">证书</div>
+        <div class="skill-tags">
+          {{#each CERTIFICATIONS}}
+          <span class="skill-tag">{{this}}</span>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

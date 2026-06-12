@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{FULL_NAME}} — {{TARGET_ROLE}}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: #e8ecf1; display: flex; justify-content: center;
+    padding: 20px; color: #1e293b; line-height: 1.45;
+  }
+  .page { width: 794px; height: 1123px; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,.12); overflow: hidden; position: relative; }
+  .banner {
+    background: #18181b; color: #fff;
+    padding: 16px 28px 14px;
+    display: flex; align-items: center; gap: 18px;
+    flex-wrap: wrap;
+    border-bottom: 3px solid #f97316;
+  }
+  .banner .info { flex: 1; }
+  .banner .name { font-size: 24px; font-weight: 700; letter-spacing: 2px; line-height: 1.1; }
+  .banner .role { font-size: 11px; color: #f97316; letter-spacing: 1.5px; margin-top: 2px; font-weight: 600; }
+  .banner .tag-row { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+  .banner .btag {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 3px; padding: 1px 7px; font-size: 9.5px;
+  }
+  .banner .stats { display: flex; gap: 14px; text-align: center; flex-shrink: 0; }
+  .banner .stat-num { font-size: 22px; font-weight: 700; color: #f97316; line-height: 1; }
+  .banner .stat-label { font-size: 8.5px; color: #a1a1aa; margin-top: 1px; }
+  .three-col { display: flex; padding: 14px 20px 12px; gap: 14px; }
+  .tc-left { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .tc-mid { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .tc-right { flex: 0.7; display: flex; flex-direction: column; gap: 10px; }
+  .sec-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #18181b; margin-bottom: 5px;
+    padding-bottom: 3px; border-bottom: 2px solid #f97316;
+  }
+  .profile-text { font-size: 11px; color: #334155; line-height: 1.5; }
+  .profile-text strong { color: #0f172a; }
+  .job { margin-bottom: 6px; }
+  .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1px; flex-wrap: wrap; }
+  .job-company { font-size: 12px; font-weight: 700; color: #18181b; }
+  .job-date { font-size: 9.5px; color: #71717a; white-space: nowrap; }
+  .job-role { font-size: 10.5px; color: #f97316; font-weight: 600; margin-bottom: 2px; }
+  .job-bullets { list-style: none; padding: 0; }
+  .job-bullets li {
+    font-size: 10.5px; color: #52525b; line-height: 1.45;
+    padding-left: 12px; position: relative; margin-bottom: 1px;
+  }
+  .job-bullets li::before { content: "■"; position: absolute; left: 0; top: 3px; color: #f97316; font-size: 5px; }
+  .job-bullets li .metric { color: #f97316; font-weight: 600; }
+  .side-card { background: #fafafa; border: 1px solid #e4e4e7; border-radius: 5px; padding: 10px; font-size: 10.5px; line-height: 1.55; }
+  .side-card .sr { display: flex; gap: 5px; margin-bottom: 2px; }
+  .side-card .sr .sicon { color: #f97316; font-weight: 700; min-width: 14px; font-size: 9.5px; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .skill-tag {
+    background: #fff7ed; border: 1px solid #fdba74;
+    border-radius: 3px; padding: 1px 5px; font-size: 9.5px; color: #c2410c;
+  }
+  .skill-list { font-size: 10.5px; color: #52525b; line-height: 1.5; }
+  .skill-list .skcat { font-weight: 700; color: #18181b; margin-top: 6px; display: block; font-size: 10.5px; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; width: 100%; height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="banner">
+    <div class="info">
+      <div class="name">{{FULL_NAME}}</div>
+      <div class="role">{{TARGET_ROLE}}</div>
+      <div class="tag-row">
+        <span class="btag">{{LOCATION}}</span>
+        <span class="btag">{{AGE}} · {{YEARS}}年</span>
+        <span class="btag">{{SCHOOL_SHORT}} · {{DEGREE_SHORT}}</span>
+      </div>
+    </div>
+    <div class="stats">
+      {{#each KEY_METRICS}}
+      <div>
+        <div class="stat-num">{{VALUE}}<span style="font-size:12px">{{UNIT}}</span></div>
+        <div class="stat-label">{{LABEL}}</div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="tc-left">
+      <div>
+        <div class="sec-title">专业概要</div>
+        <div class="profile-text">{{{PROFILE_SUMMARY}}}</div>
+      </div>
+      <div>
+        <div class="sec-title">工作经历</div>
+        {{#each JOBS}}
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">{{COMPANY}}</span>
+            <span class="job-date">{{DATES}}</span>
+          </div>
+          <div class="job-role">{{ROLE}}</div>
+          <ul class="job-bullets">
+            {{#each BULLETS}}
+            <li>{{{this}}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+      <div>
+        <div class="sec-title">教育背景</div>
+        <div style="font-size:10.5px;">
+          <strong>{{SCHOOL}}</strong> — {{MAJOR}} · {{DEGREE}}
+          <span style="color:#71717a;float:right;">{{EDU_DATES}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tc-mid">
+      <div>
+        <div class="sec-title">技术能力</div>
+        <div class="skill-list">
+          {{#each SKILL_CATEGORIES}}
+          <span class="skcat">{{CATEGORY}}</span>
+          {{ITEMS}}
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="tc-right">
+      <div class="side-card">
+        <div class="sr"><span class="sicon">📍</span>{{LOCATION}}</div>
+        <div class="sr"><span class="sicon">📅</span>{{AGE}} · {{YEARS}}年经验</div>
+        <div class="sr"><span class="sicon">🎓</span>{{SCHOOL_SHORT}} · {{DEGREE_SHORT}}</div>
+        <div class="sr"><span class="sicon">📞</span>{{PHONE}}</div>
+        <div class="sr"><span class="sicon">✉️</span>{{EMAIL}}</div>
+      </div>
+      {{#if CERTIFICATIONS}}
+      <div>
+        <div class="sec-title">证书</div>
+        <div class="skill-tags">
+          {{#each CERTIFICATIONS}}
+          <span class="skill-tag">{{this}}</span>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

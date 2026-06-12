@@ -1,0 +1,622 @@
+<!--
+╔══════════════════════════════════════════════════════════════╗
+║  Resume Video Presentation — Self-contained 16:9 Player     ║
+║  Reference template for Phase 6 of resume-optimizer skill   ║
+║                                                              ║
+║  CUSTOMIZATION POINTS (per resume):                          ║
+║  1. resumePath — path to optimized resume HTML               ║
+║  2. POS constants — measured section Y positions             ║
+║  3. steps[] — 20-step narration + spotlight definitions      ║
+║  4. Voice & rate in synthesize.py (NOT in this file)         ║
+║                                                              ║
+║  KEY ARCHITECTURAL PATTERNS (do NOT change):                 ║
+║  - Iframe CSS transform panning (no cross-frame access)      ║
+║  - Spotlight with pulse-glow animation                       ║
+║  - Audio-driven navigation + 2.5s fallback timer             ║
+║  - Start overlay for browser autoplay unlock                 ║
+║  - SCALE=0.82, ZONE_W=1000, IFRAME_W=794, ZONE_H=1080       ║
+╚══════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920,height=1080">
+<title>简历优化指南 · 60秒精华 · 张自祺</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --card-bg: #141c2b;
+    --accent: #3b82f6;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --green: #22c55e;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width: 1920px; height: 1080px; overflow: hidden;
+    background: var(--bg);
+    font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+    color: var(--text);
+    display: flex;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── resume zone (left ~52%) ── */
+  .resume-zone {
+    flex: 0 0 1000px; height: 1080px; position: relative;
+    overflow: hidden;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 20px;
+  }
+  .resume-zone iframe {
+    width: 794px; height: 2300px;
+    transform: scale(0.82); transform-origin: top center;
+    border: none; border-radius: 4px;
+    box-shadow: 0 0 60px rgba(59,130,246,.1);
+    pointer-events: none;
+    transition: transform .5s cubic-bezier(.4,0,.2,1);
+  }
+  /* highlight spotlight — thick border + glow + subtle bg tint */
+  .spotlight {
+    position: absolute; border: 4px solid var(--accent);
+    border-radius: 6px; opacity: 0;
+    transition: opacity .35s, top .5s cubic-bezier(.4,0,.2,1), height .5s cubic-bezier(.4,0,.2,1);
+    pointer-events: none; z-index: 5;
+    background: rgba(59,130,246,.08);
+    box-shadow:
+      0 0 0 6px rgba(59,130,246,.18),
+      0 0 50px rgba(59,130,246,.55),
+      0 0 120px rgba(59,130,246,.2);
+    animation: pulse-glow 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%,100% {
+      box-shadow: 0 0 0 6px rgba(59,130,246,.18), 0 0 50px rgba(59,130,246,.55), 0 0 120px rgba(59,130,246,.2);
+      border-color: rgba(59,130,246,.9);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(59,130,246,.28), 0 0 70px rgba(59,130,246,.75), 0 0 150px rgba(59,130,246,.3);
+      border-color: rgba(59,130,246,1);
+    }
+  }
+  .spotlight.on { opacity: 1; }
+  .spotlight.red {
+    border-color: var(--red);
+    background: rgba(239,68,68,.08);
+    box-shadow:
+      0 0 0 6px rgba(239,68,68,.18),
+      0 0 50px rgba(239,68,68,.55),
+      0 0 120px rgba(239,68,68,.2);
+    animation-name: pulse-glow-red;
+  }
+  @keyframes pulse-glow-red {
+    0%,100% {
+      box-shadow: 0 0 0 6px rgba(239,68,68,.18), 0 0 50px rgba(239,68,68,.55), 0 0 120px rgba(239,68,68,.2);
+      border-color: rgba(239,68,68,.9);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(239,68,68,.28), 0 0 70px rgba(239,68,68,.75), 0 0 150px rgba(239,68,68,.3);
+      border-color: rgba(239,68,68,1);
+    }
+  }
+
+  /* ── annotation zone (right ~48%) ── */
+  .anno-zone {
+    flex: 1; height: 1080px; position: relative; z-index: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 50px 56px 50px 16px;
+  }
+
+  /* ── cards ── */
+  .card {
+    position: absolute; left: 16px; right: 56px; top: 50%;
+    background: var(--card-bg); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 28px 32px;
+    opacity: 0; transform: translateY(-50%) translateY(12px);
+    transition: opacity .4s, transform .4s;
+    pointer-events: none;
+  }
+  .card.on { opacity: 1; transform: translateY(-50%) translateY(0); }
+  .card.center { left: 50%; right: auto; top: 50%; transform: translate(-50%,-50%) translateY(12px); width: 760px; }
+  .card.center.on { transform: translate(-50%,-50%) translateY(0); }
+  .card .label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+    color: var(--accent); margin-bottom: 10px; font-weight: 600;
+  }
+  .card .label.red { color: var(--red); }
+  .card .label.amber { color: var(--amber); }
+  .card h2 { font-size: 34px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+  .card h3 { font-size: 24px; font-weight: 600; line-height: 1.4; margin-bottom: 10px; }
+  .card p { font-size: 18px; color: var(--text-dim); line-height: 1.65; }
+
+  /* title card (full center) */
+  .title-card {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    text-align: center; opacity: 0; transition: opacity .5s;
+    pointer-events: none; width: 800px;
+  }
+  .title-card.on { opacity: 1; }
+  .title-card h1 { font-size: 54px; font-weight: 800; line-height: 1.2; letter-spacing: 2px; }
+  .title-card .sub { font-size: 20px; color: var(--text-dim); margin-top: 10px; letter-spacing: 3px; }
+
+  /* golden sentence (full center) */
+  .golden {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    text-align: center; opacity: 0; transition: opacity .5s;
+    pointer-events: none; max-width: 860px;
+  }
+  .golden.on { opacity: 1; }
+  .golden .big { font-size: 46px; font-weight: 700; line-height: 1.35; }
+
+  /* compare columns */
+  .compare {
+    display: flex; gap: 16px; margin-top: 16px;
+  }
+  .compare .col {
+    flex:1; padding: 16px 18px; border-radius: 8px; font-size: 16px; line-height: 1.65;
+  }
+  .compare .col.bad {
+    background: rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.2); color: #fca5a5;
+  }
+  .compare .col.good {
+    background: rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); color: #86efac;
+  }
+  .compare .col .tag {
+    font-size: 11px; letter-spacing: 2px; margin-bottom: 8px; display: block; font-weight: 600;
+  }
+  .compare .col.bad .tag { color: var(--red); }
+  .compare .col.good .tag { color: var(--green); }
+
+  .kw { color: var(--accent); font-weight: 700; }
+
+  /* pillars */
+  .pillars {
+    display: flex; flex-direction: column; gap: 12px; margin-top: 18px;
+  }
+  .pillars .pillar {
+    font-size: 20px; padding: 14px 20px;
+    background: rgba(59,130,246,.05); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; opacity: 0; transform: translateX(16px);
+    transition: opacity .35s, transform .35s;
+  }
+  .pillars .pillar.on { opacity: 1; transform: translateX(0); }
+
+  /* progress bar */
+  .progress-bar {
+    position: fixed; bottom: 0; left: 0; height: 3px;
+    background: var(--accent); z-index: 100; transition: width .35s;
+  }
+  .step-counter {
+    position: fixed; bottom: 16px; right: 24px;
+    font-size: 11px; color: var(--text-dim); letter-spacing: 2px; z-index: 100;
+  }
+  .hint {
+    position: fixed; bottom: 16px; left: 24px;
+    font-size: 11px; color: rgba(255,255,255,.15); letter-spacing: 1px; z-index: 100;
+  }
+
+  /* section badge on resume */
+  .section-badge {
+    position: absolute; left: 20px; padding: 5px 14px;
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; border-radius: 3px;
+    opacity: 0; transition: opacity .3s, top .5s cubic-bezier(.4,0,.2,1);
+    pointer-events: none; z-index: 6;
+    box-shadow: 0 2px 12px rgba(0,0,0,.4);
+  }
+  .section-badge.on { opacity: 1; }
+
+  /* start overlay */
+  .start-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,.75);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; transition: opacity .4s;
+  }
+  .start-overlay.hidden { opacity: 0; pointer-events: none; }
+  .start-btn {
+    padding: 20px 60px; font-size: 28px; font-weight: 700;
+    background: var(--accent); color: #fff; border: none; border-radius: 12px;
+    cursor: pointer; letter-spacing: 3px;
+    font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .start-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 40px rgba(59,130,246,.4);
+  }
+  .start-hint {
+    margin-top: 16px; font-size: 14px; color: var(--text-dim); letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="start-overlay" id="startOverlay">
+  <button class="start-btn" id="startBtn">▶ 开始播放</button>
+  <div class="start-hint">60秒精华 · 语音讲解 · 16:9录屏</div>
+</div>
+
+<div class="resume-zone" id="resumeZone">
+  <iframe id="resumeIframe" src="about:blank"></iframe>
+  <div class="spotlight" id="spot"></div>
+  <div class="section-badge" id="badge"></div>
+</div>
+
+<div class="anno-zone" id="annoZone"></div>
+
+<div class="progress-bar" id="progress"></div>
+<div class="step-counter" id="counter"></div>
+<div class="hint" id="hint">SPACE 暂停/继续 · ← → 翻页</div>
+<audio id="audio" preload="auto"></audio>
+
+<script>
+const resumePath = '../张自祺_优化简历_客观版.html';
+const iframe = document.getElementById('resumeIframe');
+iframe.src = resumePath;
+
+// ── State ──
+let step = -1;
+let paused = false;
+
+const annoZone = document.getElementById('annoZone');
+const progress = document.getElementById('progress');
+const counter = document.getElementById('counter');
+const spot = document.getElementById('spot');
+const badge = document.getElementById('badge');
+
+// ── Layout constants ──
+const SCALE = 0.82;
+const PAD = 20;            // .resume-zone padding-top
+const ZONE_H = 1080;       // .resume-zone height
+const IFRAME_W = 794;      // iframe intrinsic width
+const IFRAME_H = 2300;     // iframe intrinsic height
+const IFRAME_L = (1000 - IFRAME_W * SCALE) / 2; // iframe left offset in container
+
+// Current iframe translateY (set by panIframe, read by setSpotlight)
+let iframeTY = 0;
+
+// Content Y positions — measured from browser getBoundingClientRect (body padding=40 included)
+const POS = {
+  top: 0,
+  profile: 72,      // #sec-profile: 专业概要 title → section height 157px
+  skills: 319,      // #sec-skills: 技术能力 title → section height 241px
+  shengxi: 612,     // #job-shengxi: 盛喜工效 → job height 202px
+  suzhouAI: 824,    // #job-suzhouai: 苏州AI公司 → job height 245px
+  xjtlu: 1081,      // #job-xjtlu: 西交利物浦 → job height 94px
+  gusu: 1185,       // #job-gusu: 姑苏区/火车站 → job height 71px
+  dongyao: 1268,    // #job-dongyao: 东曜药业 → job height 93px
+  edu: 1387,        // #sec-edu: 教育背景 → section height 86px
+};
+
+// ── Core: pan iframe with CSS transform (NO cross-frame access needed) ──
+function panIframe(contentY) {
+  // Position contentY at ~28% from top of visible zone
+  const targetVY = ZONE_H * 0.28;
+  iframeTY = contentY * SCALE - targetVY + PAD;
+  const maxTY = Math.max(0, IFRAME_H * SCALE - ZONE_H + PAD);
+  iframeTY = Math.max(0, Math.min(iframeTY, maxTY));
+  iframe.style.transform = `translateY(-${iframeTY}px) scale(${SCALE})`;
+}
+
+function setSpotlight(contentY, height, isRed) {
+  if (!height) { spot.classList.remove('on'); return; }
+  let spotTop = PAD + contentY * SCALE - iframeTY;
+  let spotH = height * SCALE;
+  // Clamp to visible area – minimum 40px visible
+  if (spotTop < PAD - 10) { spotH -= (PAD - 10 - spotTop); spotTop = PAD - 10; }
+  if (spotTop + spotH > ZONE_H - 8) spotH = ZONE_H - 8 - spotTop;
+  if (spotH < 30) spotH = 30;
+  spot.style.top = spotTop + 'px';
+  spot.style.left = (IFRAME_L + 28 * SCALE) + 'px';
+  spot.style.width = (IFRAME_W * SCALE - 56 * SCALE) + 'px';
+  spot.style.height = spotH + 'px';
+  spot.className = 'spotlight' + (isRed ? ' red' : '');
+  requestAnimationFrame(() => { spot.classList.add('on'); });
+}
+
+function setBadge(text) {
+  if (!text) { badge.classList.remove('on'); return; }
+  badge.textContent = text;
+  const spotTop = parseFloat(spot.style.top) || 0;
+  badge.style.top = Math.max(2, spotTop - 24) + 'px';
+  badge.style.left = spot.style.left;
+  requestAnimationFrame(() => { badge.classList.add('on'); });
+}
+
+// ── Card helpers ──
+let activeEls = [];
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html) e.innerHTML = html;
+  return e;
+}
+
+function clearAll() {
+  activeEls.forEach(e => { try { e.remove(); } catch(_){} });
+  activeEls = [];
+  spot.classList.remove('on','red');
+  badge.classList.remove('on');
+}
+
+function show(cls, html, parent) {
+  const d = el('div', cls, html);
+  (parent || annoZone).appendChild(d);
+  activeEls.push(d);
+  requestAnimationFrame(() => { d.classList.add('on'); });
+  return d;
+}
+
+// ── Steps: [fn, contentY, highlightY, highlightH, badgeText, isRed] ──
+const steps = [];
+
+function addStep(fn, contentY, hlY, hlH, badgeText, isRed) {
+  steps.push({ fn, contentY, hlY, hlH, badgeText, isRed });
+}
+
+// Step 0: Hook — title (resume at top, no spotlight)
+addStep(() => {
+  panIframe(POS.top);
+  const c = el('div','title-card',
+    '<h1>简历优化<div style="font-size:20px;color:#94a3b8;margin-top:4px;letter-spacing:2px;">张自祺 · 券商AI技术服务岗</div></h1>' +
+    '<div class="sub">逐条拆解 · 60秒</div>'
+  );
+  annoZone.appendChild(c); activeEls.push(c);
+  requestAnimationFrame(() => { c.classList.add('on'); });
+}, POS.top, 0, 0, null);
+
+// Step 1: Golden sentence
+addStep(() => {
+  panIframe(POS.top);
+  const g = el('div','golden',
+    '<div class="big">不写<span style="color:#f59e0b">「我做过什么」</span></div>' +
+    '<div style="font-size:22px;color:#94a3b8;margin:6px 0">而是写</div>' +
+    '<div class="big"><span style="color:#3b82f6">「我能帮你做什么」</span></div>'
+  );
+  annoZone.appendChild(g); activeEls.push(g);
+  requestAnimationFrame(() => { g.classList.add('on'); });
+}, POS.top, 0, 0, null);
+
+// Step 2: Three problems intro — highlight top half of resume
+addStep(() => {
+  panIframe(POS.top);
+  show('card','<div class="label red">原来的问题</div><h2>三处硬伤</h2><p>HR 扫一份简历大约 <span style="color:#fff">3 秒</span>。<br>这三处不改，大概率直接过掉。</p>');
+}, POS.top, 72, 490, null);
+
+// Step 3: Problem 1 — no profile → highlight profile area
+addStep(() => {
+  panIframe(POS.profile);
+  show('card','<div class="label red">问题 1</div><h3>没有专业概要</h3><p>打开就是经历列表。<br>HR 不知道你投什么岗、有什么核心能力。</p>');
+}, POS.profile, POS.profile, 157, '缺少概要');
+
+// Step 4: Problem 2 — scattered skills → highlight skills area
+addStep(() => {
+  panIframe(POS.skills);
+  show('card','<div class="label red">问题 2</div><h3>技能散在各段经历里</h3><p>HR 没空帮你归纳。<br>收拢成<span class="kw">一个矩阵</span>，扫一眼就看清。</p>');
+}, POS.skills, POS.skills, 241, '技能散落');
+
+// Step 5: Problem 3 — weak verbs → highlight 盛喜工效
+addStep(() => {
+  panIframe(POS.shengxi);
+  show('card','<div class="label red">问题 3</div><h3>只写了干了什么，没写干出什么</h3><p>「负责」「参与」「掌握」<br>—— 只看这些动词，分不出你和别人的区别。</p>');
+}, POS.shengxi, POS.shengxi, 202, '无产出');
+
+// Step 6: Strategy — resume at top, no spotlight
+addStep(() => {
+  panIframe(POS.top);
+  show('card','<div class="label">改写的方向</div><h2>所有经历往这三个词靠拢<br><span class="kw">内容生产</span> + <span class="kw">自动化</span> + <span class="kw">快速交付</span></h2><p style="margin-top:4px;">目标岗：券商 AI 技术服务 — IP打造 + 视频营销 + 引流开户</p>');
+}, POS.top, 0, 0, null);
+
+// Step 7: Fix 1 — Profile → highlight profile
+addStep(() => {
+  panIframe(POS.profile);
+  show('card','<div class="label">改动 ①</div><h3>加专业概要</h3><p>四句话：<span class="kw">能力域</span> → <span class="kw">工具+产出</span> → <span class="kw">跨学科怎么变优势</span> → <span class="kw">能帮业务做什么</span></p><p style="margin-top:8px;font-size:15px;">跨专业不藏，直接说「这让我学新东西更快」</p>');
+}, POS.profile, POS.profile, 157, '新增概要');
+
+// Step 8: Fix 2 — Skills matrix → highlight skills grid
+addStep(() => {
+  panIframe(POS.skills);
+  show('card','<div class="label">改动 ②</div><h3>技能收成矩阵</h3><p><span class="kw">六列</span>：AI开发 / 智能体 / AIGC / 自动化 / 知识管理 / 办公协作</p><p style="margin-top:8px;font-size:15px;">不说「会用什么工具」，说「用什么工具搭了什么体系」</p>');
+}, POS.skills, POS.skills, 241, '技能矩阵 6列');
+
+// Step 9: Fix 2 — Before/After → keep spotlight on skills
+addStep(() => {
+  panIframe(POS.skills);
+  const c = show('card','<div class="label">改动 ②</div><h3>看一个具体例子</h3>');
+  const cmp = el('div','compare',
+    '<div class="col bad"><span class="tag">原文</span>熟练使用 AI 工具制作视频</div>' +
+    '<div class="col good"><span class="tag">优化</span>搭建 AIGC 内容生产线，覆盖从制作到多平台分发的<span style="color:#fff">完整链路</span></div>'
+  );
+  c.appendChild(cmp);
+}, POS.skills, POS.skills, 241, '技能矩阵 6列');
+
+// Step 10: Fix 3 — Verb upgrade → highlight 苏州AI
+addStep(() => {
+  panIframe(POS.suzhouAI);
+  show('card','<div class="label">改动 ③</div><h3>换动词</h3><p style="font-size:20px;margin-bottom:12px;"><span style="color:#fca5a5;text-decoration:line-through;">掌握</span> 智能体任务分发</p><p style="font-size:20px;"><span style="color:#86efac;">设计 + 实现</span> 复杂任务自动化协同</p><p style="margin-top:12px;font-size:15px;">「掌握」说的是你， 「设计+实现」说的是你做了什么</p>');
+}, POS.suzhouAI, POS.suzhouAI, 245, '换动词');
+
+// Step 11: Fix 4 — Add deliverables → highlight 西交利物浦
+addStep(() => {
+  panIframe(POS.xjtlu);
+  const c = show('card','<div class="label">改动 ④</div><h3>每条补上产出</h3>');
+  const cmp = el('div','compare',
+    '<div class="col bad"><span class="tag">原文</span>负责测评学术类 AI 工具</div>' +
+    '<div class="col good"><span class="tag">优化</span>系统测评多款学术AI工具，<span style="color:#fff">输出评估报告，为采购决策提供依据</span></div>'
+  );
+  c.appendChild(cmp);
+}, POS.xjtlu, POS.xjtlu, 94, '加产出');
+
+// Step 12: Additional fixes → highlight 盛喜工效 area
+addStep(() => {
+  panIframe(POS.shengxi);
+  show('card','<div class="label">其他改动</div><h3>同理应用到各段</h3><p style="font-size:16px;">• 盛喜工效：7条合为4条，补<span class="kw">审批流/人事管理/资产台账</span>模块名<br>• 火车站：扩写<span class="kw">跨部门协调</span>，通用能力加分<br>• 东曜药业：留<span class="kw">GMP合规</span>，券商强监管对合规敏感</p>');
+}, POS.shengxi, POS.shengxi, 202, '同理应用');
+
+// Step 13: Review — resume at top, no spotlight
+addStep(() => {
+  panIframe(POS.top);
+  show('card','<div class="label amber">改了什么</div><h2>六项改动</h2><p style="font-size:17px;">加概要 · 技能矩阵化 · 换动词 · 补产出 · 跨专业不回避 · 合规经验做关联</p>');
+}, POS.top, 0, 0, null);
+
+// Step 14: Hard truth 1 → highlight 教育背景 (shows the跨专业 path)
+addStep(() => {
+  panIframe(POS.edu);
+  show('card','<div class="label red">面试会问</div><h3>跨专业：食品科学 → 公共管理 → AI</h3><p style="margin-top:10px;">准备一句回答：「公共管理的系统思维和协调能力，加上AI工具，正好做券商IP运营的自动化和提效。」</p>');
+}, POS.edu, POS.edu, 86, '跨专业', true);
+
+// Step 15: Hard truth 2 → highlight 东曜药业 (GMP合规→券商监管关联)
+addStep(() => {
+  panIframe(POS.dongyao);
+  show('card','<div class="label red">面试会问</div><h3>零金融背景</h3><p>有自学经历就补一行。<br>没有的话，至少了解<span class="kw">券商业务模式</span>和<span style="color:#fca5a5">内容合规底线：不荐股、不承诺收益</span>。</p>');
+}, POS.dongyao, POS.dongyao, 93, '零金融', true);
+
+// Step 16: Hard truth resolution — no spotlight
+addStep(() => {
+  panIframe(POS.top);
+  const g = el('div','golden',
+    '<div class="big" style="font-size:34px;">短板不用藏</div>' +
+    '<div style="font-size:18px;color:#94a3b8;margin:10px 0">承认它 + 说出你在补 + 说明你的背景<span style="color:#3b82f6">反而能带来什么不同</span></div>'
+  );
+  annoZone.appendChild(g); activeEls.push(g);
+  requestAnimationFrame(() => { g.classList.add('on'); });
+}, POS.top, 0, 0, null);
+
+// Step 17: Four pillars — no spotlight
+addStep(() => {
+  panIframe(POS.top);
+  show('card','<div class="label amber">总结</div><h2>这四件事做了就见效</h2>');
+  const ps = el('div','pillars','');
+  const items = [
+    '写「我能帮你做什么」而不是「我做过什么」',
+    '写体系不写工具清单',
+    '短板不回避，预判面试官想问的，准备好答案',
+    '每句话都有原始经历支撑，不编'
+  ];
+  items.forEach((t,i) => {
+    const p = el('div','pillar', `<span style="color:#3b82f6;font-weight:700;margin-right:8px;">0${i+1}</span>${t}`);
+    ps.appendChild(p);
+    setTimeout(() => p.classList.add('on'), i*280);
+  });
+  const card = annoZone.querySelector('.card');
+  card.appendChild(ps);
+}, POS.top, 0, 0, null);
+
+// Step 18: CTA — no spotlight
+addStep(() => {
+  panIframe(POS.top);
+  show('card center','<div class="label">附赠</div><h2 style="text-align:center;">配套补充指导文档</h2><p style="text-align:center;font-size:18px;margin-top:12px;">每条修改都列了<span class="kw">原文 → 优化后 → 理由</span>三列<br>改简历时对着看就行。</p>');
+}, POS.top, 0, 0, null);
+
+// Step 19: Final frame — no spotlight
+addStep(() => {
+  panIframe(POS.top);
+  const c = el('div','title-card',
+    '<h1 style="font-size:42px;">改的不是措辞</h1>' +
+    '<div class="sub" style="font-size:24px;color:#3b82f6;margin-top:8px;">改的是<span style="font-weight:700;">招聘方看你的方式</span></div>' +
+    '<div class="sub" style="margin-top:20px;">简历优化 · 张自祺 · 完</div>'
+  );
+  annoZone.appendChild(c); activeEls.push(c);
+  requestAnimationFrame(() => { c.classList.add('on'); });
+}, POS.top, 0, 0, null);
+
+// ── Audio-driven Navigation ──
+const audioEl = document.getElementById('audio');
+const hint = document.getElementById('hint');
+const startOverlay = document.getElementById('startOverlay');
+let fallbackTimer = null;
+let started = false;
+
+function clearFallback() {
+  if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+}
+
+audioEl.addEventListener('ended', () => {
+  clearFallback();
+  if (!paused && step < steps.length - 1) goTo(step + 1);
+});
+audioEl.addEventListener('error', () => {
+  clearFallback();
+  console.error('Audio error:', audioEl.error);
+  if (!paused && step < steps.length - 1) {
+    fallbackTimer = setTimeout(() => goTo(step + 1), 2500);
+  }
+});
+
+function playAudio() {
+  clearFallback();
+  audioEl.src = `audio/${String(step).padStart(2,'0')}.mp3`;
+  if (paused) return;
+  audioEl.play().then(() => {
+    hint.textContent = '🔊 语音讲解中 · SPACE 暂停 · ← → 翻页';
+  }).catch((e) => {
+    console.warn('Audio play failed:', e.message);
+    if (!paused && step < steps.length - 1) {
+      fallbackTimer = setTimeout(() => goTo(step + 1), 2500);
+    }
+  });
+}
+
+function goTo(n) {
+  if (n < 0 || n >= steps.length) return;
+  step = n;
+  const s = steps[n];
+  clearAll();
+  s.fn();
+  // Pan iframe + spotlight (uses CSS transform, no cross-frame access)
+  if (s.contentY !== undefined) panIframe(s.contentY);
+  if (s.hlH > 0) {
+    setSpotlight(s.hlY, s.hlH, s.isRed);
+    if (s.badgeText) setBadge(s.badgeText);
+  }
+  progress.style.width = ((n+1)/steps.length*100)+'%';
+  counter.textContent = `${n+1} / ${steps.length}`;
+  if (started) playAudio();
+}
+
+function next() { if (step < steps.length-1) goTo(step+1); }
+function prev() { if (step > 0) goTo(step-1); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (!started) return;
+    paused = !paused;
+    clearFallback();
+    if (paused) {
+      audioEl.pause();
+      hint.textContent = '⏸ 已暂停 · SPACE 继续 · ← → 翻页';
+    } else {
+      audioEl.play().catch(() => {
+        if (step < steps.length - 1) fallbackTimer = setTimeout(() => goTo(step + 1), 2500);
+      });
+      hint.textContent = '🔊 语音讲解中 · SPACE 暂停 · ← → 翻页';
+    }
+  }
+  if (e.code === 'ArrowRight') { e.preventDefault(); clearFallback(); next(); }
+  if (e.code === 'ArrowLeft') { e.preventDefault(); clearFallback(); prev(); }
+  if (e.code === 'KeyR') { e.preventDefault(); clearFallback(); goTo(0); }
+});
+
+// Start button — user gesture unlocks audio
+document.getElementById('startBtn').addEventListener('click', () => {
+  startOverlay.classList.add('hidden');
+  started = true;
+  paused = false;
+  hint.textContent = '🔊 语音讲解中 · SPACE 暂停 · ← → 翻页';
+  playAudio();
+});
+
+// Show step 0 visually on load (no audio yet)
+goTo(0);
+hint.textContent = '点击「开始播放」启动语音讲解';
+</script>
+</body>
+</html>
