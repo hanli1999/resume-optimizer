@@ -4,8 +4,10 @@
 > 核心原则：**可优化表达，不生成虚假信息。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen)
-![Templates: 6](https://img.shields.io/badge/Templates-6-blue)
+[![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen)]()
+[![Templates: 6](https://img.shields.io/badge/Templates-6-blue)]()
+
+[Quick Start](#-quick-start) · [Features](#-features) · [Why](#-why-this-project) · [Templates](#-templates) · [Contributing](#-contributing)
 
 ## 这是什么
 
@@ -40,6 +42,25 @@
 | PDF 2 | 单页浓缩简历 | 单页A4，适合打印/招聘会 |
 | PDF 3 | 补充指导文档 | 需确认项+修订对照表+岗位匹配分析 |
 | 可选 | 视频讲解网页 | 1920×1080 自播放网页，逐帧标注修改点，配合口播旁白。打开即看，可录屏分享 |
+
+## 为什么做这个
+
+市面上的AI简历工具会帮你编造信息。"用过Python"改成"精通Python"，"参与项目"改成"主导百万用户产品"。简历看起来漂亮了——面试的时候什么都解释不出来。
+
+这个工具的底线是：**所有优化可追溯至原文出处。** 改完逐句比对，过度推断的标红撤回，凭空生成的直接删。
+
+不是不让AI帮你写简历。是不让AI替你背锅。
+
+## 和同类工具的区别
+
+| | 这个工具 | 典型的AI简历工具 |
+|---|---|---|
+| 信息真实性 | 逐句审计，四级标记 | 不做审计 |
+| 模板 | 6套，按行业/职级自动匹配 | 通常1套 |
+| JD匹配 | 开启，但不会虚构技能 | 会帮你"补"你不会的技能 |
+| 硬伤提醒 | 面试官会追问什么，提前列出来 | 不提醒 |
+| 输出 | 3个PDF + 可选视频网页 | 通常1-2个文件 |
+| 开源 | MIT，17个文件全透明 | 通常闭源或Fremium |
 
 ## 快速开始
 

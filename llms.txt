@@ -1,0 +1,9 @@
+# 五维三轴简历优化引擎 (Resume Optimizer)
+
+A Claude Code Skill that optimizes resumes without fabricating information. Input PDF/DOCX → 3 PDFs + optional web-based video presentation.
+
+Key principle: All optimizations traceable to source text. Truth audit phase compares every sentence against original, marking deviations as ✅ match / ⚠️ strengthened / 🔴 over-inferred / ❌ fabricated.
+
+Tech: Python (pdfplumber, python-docx, Playwright), 6 HTML/CSS templates (A-F), Mermaid architecture in README.
+
+Open source: MIT License, 17 files.
