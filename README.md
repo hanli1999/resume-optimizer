@@ -1,13 +1,26 @@
-# 五维三轴简历优化引擎 · Resume Optimizer
+<p align="center">
+  <h1 align="center">Resume Optimizer · 简历优化引擎</h1>
+  <p align="center">输入一份简历，输出 3 个 PDF + 讲解视频。<strong>可优化表达，不生成虚假信息。</strong></p>
+</p>
 
-> 输入一份简历（PDF/DOCX），输出 3 个 PDF。全流程 6-7 阶段。
-> 核心原则：**可优化表达，不生成虚假信息。**
+<div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen)]()
 [![Templates: 6](https://img.shields.io/badge/Templates-6-blue)]()
 
-[Quick Start](#-quick-start) · [Features](#-features) · [Why](#-why-this-project) · [Templates](#-templates) · [Contributing](#-contributing)
+</div>
+
+```bash
+# 一行安装（Claude Code Skill）
+npx skills add hanli1999/resume-optimizer
+```
+
+<p align="center">
+  <em>扔进一份PDF简历 → 双页版 + 单页版 + 补充指导 + 讲解视频网页</em>
+</p>
+
+[Quick Start](#快速开始) · [Features](#特性) · [Why](#为什么做这个) · [Templates](#六套模板) · [Contributing](#贡献)
 
 ## 这是什么
 
